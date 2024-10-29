@@ -232,7 +232,7 @@ function searchBooks($query) {
         return ["success" => true, "data" => $books]; // Mengembalikan hasil pencarian
     } else {
         mysqli_close($conn); // Menutup koneksi jika gagal
-        return ["success" => false, "message" => "Gagal mencari buku"]; // Mengembalikan pesan kesalahan
+        return ["success" => false, "message" => "Gagal mencari buku berdasarkan judul"]; // Mengembalikan pesan kesalahan
     }
 }
 
