@@ -8,6 +8,9 @@ define("GET_BOOKS", "03"); // Konstanta untuk mengambil semua buku
 define("GET_BOOK_DETAILS", "04"); // Konstanta untuk mengambil detail buku berdasarkan ID
 define("SEARCH_BOOKS", "05"); // Konstanta untuk mencari buku berdasarkan query
 define("GET_CATEGORIES", "06"); // Konstanta untuk mengambil semua kategori buku
+define("GET_DISTRIBUTORS", "07"); // Konstanta untuk mengambil semua distributor
+define("GET_SUPPLIES", "08"); // Konstanta untuk mengambil data pemasokan (pasok)
+
 
 
 // Ambil data dari request POST
@@ -44,6 +47,14 @@ if (isset($_POST['TokoBuku'])) {
             // Mengambil semua kategori buku dari database
             echo json_encode(getCategories());
             break;
+            case GET_DISTRIBUTORS:
+                // Mengambil data semua distributor
+                echo json_encode(getDistributors());
+                break;
+            case GET_SUPPLIES:
+                // Mengambil data pemasokan (pasok)
+                echo json_encode(getSupplies());
+                break;
         default:
             // Jika TRX tidak dikenali, mengembalikan pesan kesalahan
             echo json_encode(["success" => false, "message" => "Transaksi tidak valid"]);
@@ -254,6 +265,49 @@ function getCategories() {
     return ["success" => true, "data" => $categories]; // Mengembalikan hasil dalam format JSON
 }
 
+
+// Fungsi untuk Mengambil Data Distributor Menggunakan POST
+function getDistributors() {
+    include 'koneksi.php'; // Menghubungkan ke database
+    $query = "SELECT * FROM distributor"; // Mengambil semua data distributor
+    $result = mysqli_query($conn, $query); // Menjalankan query
+
+    $distributors = []; // Inisialisasi array untuk menyimpan distributor
+    while ($row = mysqli_fetch_assoc($result)) { // Mengambil setiap baris hasil query
+        $distributors[] = $row; // Menyimpan data distributor ke dalam array
+    }
+    mysqli_close($conn); // Menutup koneksi ke database
+
+    return ["success" => true, "data" => $distributors]; // Mengembalikan hasil dalam format JSON
+}
+
+// Endpoint handler
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    echo json_encode(getDistributors());
+}
+
+
+
+
+// Fungsi untuk Mengambil Data Pasok Menggunakan POST
+function getSupplies() {
+    include 'koneksi.php'; // Menghubungkan ke database
+    $query = "SELECT * FROM pasok"; // Mengambil semua data pasok
+    $result = mysqli_query($conn, $query); // Menjalankan query
+
+    $supplies = []; // Inisialisasi array untuk menyimpan data pasok
+    while ($row = mysqli_fetch_assoc($result)) { // Mengambil setiap baris hasil query
+        $supplies[] = $row; // Menyimpan data pasok ke dalam array
+    }
+    mysqli_close($conn); // Menutup koneksi ke database
+
+    return ["success" => true, "data" => $supplies]; // Mengembalikan hasil dalam format JSON
+}
+
+// Endpoint handler
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    echo json_encode(getSupplies());
+}
 
 
 ?>
