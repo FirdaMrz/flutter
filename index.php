@@ -9,7 +9,11 @@ define("GET_BOOK_DETAILS", "04"); // Konstanta untuk mengambil detail buku berda
 define("SEARCH_BOOKS", "05"); // Konstanta untuk mencari buku berdasarkan query
 define("GET_CATEGORIES", "06"); // Konstanta untuk mengambil semua kategori buku
 define("GET_DISTRIBUTORS", "07"); // Konstanta untuk mengambil semua distributor
-define("GET_SUPPLIES", "08"); // Konstanta untuk mengambil data pemasokan (pasok)
+define("GET_PASOK", "08"); // Konstanta untuk mengambil data pemasokan (pasok)
+define("GET_DETAIL_PENJUALAN", "09"); // Konstanta untuk mengambil semua data detail_penjualan
+define("GET_KASIR", "10"); // Mengambil semua data kasir
+define("GET_ADDTOKERANJANG", "11"); // Mengambil semua data keranjang
+define("GET_PENJUALAN", "12"); // Mengambil semua data penjualan
 
 
 
@@ -47,14 +51,30 @@ if (isset($_POST['TokoBuku'])) {
             // Mengambil semua kategori buku dari database
             echo json_encode(getCategories());
             break;
-            case GET_DISTRIBUTORS:
-                // Mengambil data semua distributor
-                echo json_encode(getDistributors());
-                break;
-            case GET_SUPPLIES:
-                // Mengambil data pemasokan (pasok)
-                echo json_encode(getSupplies());
-                break;
+        case GET_DISTRIBUTORS:
+            // Mengambil semua kategori buku dari database
+            echo json_encode(getDistributors());
+            break;
+        case GET_PASOK:
+            // Mengambil semua kategori buku dari database
+            echo json_encode(getPasok());
+            break;
+        case GET_DETAIL_PENJUALAN:
+            // Mengambil semua data detail_penjualan dari database
+            echo json_encode(getDetailPenjualan());
+            break;
+        case GET_KASIR:
+            echo json_encode(getKasir());
+            break;
+            
+        case GET_KERANJANG:
+            echo json_encode(getAddToKeranjang());
+            break;
+            
+        case GET_PENJUALAN:
+            echo json_encode(getPenjualan());
+            break;
+              
         default:
             // Jika TRX tidak dikenali, mengembalikan pesan kesalahan
             echo json_encode(["success" => false, "message" => "Transaksi tidak valid"]);
@@ -266,48 +286,117 @@ function getCategories() {
 }
 
 
-// Fungsi untuk Mengambil Data Distributor Menggunakan POST
+
+
+// Fungsi untuk Mengambil Data Distributor
 function getDistributors() {
     include 'koneksi.php'; // Menghubungkan ke database
     $query = "SELECT * FROM distributor"; // Mengambil semua data distributor
-    $result = mysqli_query($conn, $query); // Menjalankan query
+    $result = mysqli_query($conn, $query); // Menjalankan query untuk mengambil data
 
-    $distributors = []; // Inisialisasi array untuk menyimpan distributor
+    $distributors = []; // Inisialisasi array untuk menyimpan data distributor
     while ($row = mysqli_fetch_assoc($result)) { // Mengambil setiap baris hasil query
         $distributors[] = $row; // Menyimpan data distributor ke dalam array
     }
     mysqli_close($conn); // Menutup koneksi ke database
-
+    
     return ["success" => true, "data" => $distributors]; // Mengembalikan hasil dalam format JSON
 }
 
-// Endpoint handler
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    echo json_encode(getDistributors());
-}
 
 
 
-
-// Fungsi untuk Mengambil Data Pasok Menggunakan POST
-function getSupplies() {
+// Fungsi untuk Mengambil Data Pasok
+function getPasok() {
     include 'koneksi.php'; // Menghubungkan ke database
-    $query = "SELECT * FROM pasok"; // Mengambil semua data pasok
+    $query = "SELECT * FROM pasok"; // Query untuk mengambil semua data dari tabel pasok
     $result = mysqli_query($conn, $query); // Menjalankan query
 
-    $supplies = []; // Inisialisasi array untuk menyimpan data pasok
+    $pasokData = []; // Inisialisasi array untuk menyimpan data pasok
     while ($row = mysqli_fetch_assoc($result)) { // Mengambil setiap baris hasil query
-        $supplies[] = $row; // Menyimpan data pasok ke dalam array
+        $pasokData[] = $row; // Menyimpan data ke dalam array
     }
     mysqli_close($conn); // Menutup koneksi ke database
-
-    return ["success" => true, "data" => $supplies]; // Mengembalikan hasil dalam format JSON
+    
+    return ["success" => true, "data" => $pasokData]; // Mengembalikan hasil dalam format JSON
 }
 
-// Endpoint handler
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    echo json_encode(getSupplies());
+
+
+function getDetailPenjualan() {
+    include 'koneksi.php'; // Menghubungkan ke database
+    $query = "SELECT * FROM detail_penjualan"; // Query untuk mengambil semua data detail_penjualan
+    $result = mysqli_query($conn, $query); // Menjalankan query
+
+    $detailPenjualan = []; // Inisialisasi array untuk menyimpan data detail_penjualan
+    while ($row = mysqli_fetch_assoc($result)) { // Mengambil setiap baris hasil query
+        $detailPenjualan[] = $row; // Menyimpan data ke dalam array
+    }
+    mysqli_close($conn); // Menutup koneksi ke database
+    
+    return ["success" => true, "data" => $detailPenjualan]; // Mengembalikan hasil dalam format JSON
 }
 
+
+
+
+function getKasir() {
+    // Menghubungkan ke file koneksi database
+    include 'koneksi.php';
+
+    // Menyusun query SQL untuk mengambil semua data dari tabel 'kasir'
+    $query = "SELECT * FROM kasir";
+
+    // Menjalankan query dan menyimpan hasilnya di variabel $result
+    $result = mysqli_query($conn, $query);
+
+    // Inisialisasi array kosong untuk menyimpan data kasir
+    $kasir = [];
+
+    // Mengambil setiap baris hasil query dan menyimpannya ke dalam array $kasir
+    while ($row = mysqli_fetch_assoc($result)) {
+        $kasir[] = $row; // Menambahkan baris data ke dalam array
+    }
+
+    // Menutup koneksi ke database
+    mysqli_close($conn);
+    
+    // Mengembalikan hasil dalam format JSON yang menunjukkan status sukses dan data kasir
+    return ["success" => true, "data" => $kasir];
+}
+
+
+
+
+
+function addToKeranjang($id_buku, $jumlah) {
+    // Menghubungkan ke file koneksi database
+    include 'koneksi.php';
+
+    // Menyusun query SQL untuk memasukkan data ke dalam tabel 'keranjang'
+    $query = "INSERT INTO keranjang (id_buku, jumlah) VALUES (?, ?)";
+
+    // Menyiapkan statement untuk mencegah SQL injection
+    $stmt = mysqli_prepare($conn, $query);
+
+    // Mengikat parameter ke statement
+    mysqli_stmt_bind_param($stmt, "ii", $id_buku, $jumlah);
+
+    // Menjalankan statement
+    if (mysqli_stmt_execute($stmt)) {
+        // Jika berhasil, kembalikan status sukses
+        $result = ["success" => true, "message" => "Data berhasil ditambahkan ke keranjang."];
+    } else {
+        // Jika gagal, kembalikan status gagal dan pesan kesalahan
+        $result = ["success" => false, "message" => "Gagal menambahkan data ke keranjang: " . mysqli_error($conn)];
+    }
+
+    // Menutup statement dan koneksi
+    mysqli_stmt_close($stmt);
+    mysqli_close($conn);
+
+    // Mengembalikan hasil
+    return $result;
+}
 
 ?>
