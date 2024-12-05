@@ -32,6 +32,7 @@ define("ADD_TO_CART", "13");         // Menambah item ke keranjang
 define("UPDATE_CART_QUANTITY", "14"); // Memperbarui jumlah item dalam keranjang
 define("REMOVE_FROM_CART", "15");    // Menghapus item dari keranjang
 define("CHECKOUT", "16");            // Melakukan checkout
+define("LOGOUT", "17");            // Melakukan Logout
 
 
 
@@ -155,7 +156,11 @@ if (isset($_POST['TokoBuku'])) {
                 }
                 break;
                     
-                    
+            
+            case LOGOUT:
+                echo json_encode(Logout($vPaket['DATA'])); // Fungsi Logout
+                break;
+                
             default:
                 echo json_encode(["success" => false, "message" => "Transaksi tidak valid"]);
                 break;
@@ -172,37 +177,41 @@ echo json_encode(["success" => false, "message" => "Request tidak valid"]);
 
 
 
-
-// Fungsi untuk login
+//Fungsi untuk Login//
 function Login($data) {
-    include 'koneksi.php'; // Menghubungkan ke database lagi dalam fungsi
+    include 'koneksi.php';
+    session_start(); // Memulai sesi
 
-    $username = isset($data['Username']) ? $data['Username'] : null; // Mengambil username dari data JSON
-    $password = isset($data['Password']) ? md5($data['Password']) : null; // Mengambil dan mengenkripsi password
+    $username = isset($data['Username']) ? $data['Username'] : null;
+    $password = isset($data['Password']) ? md5($data['Password']) : null;
 
-    // Memastikan username dan password telah diisi
     if ($username && $password) {
-        $query = "SELECT username, password FROM kasir WHERE username = '$username' AND password = '$password'"; // Query untuk cek username dan password di database
-        $result = mysqli_query($conn, $query); // Menjalankan query
+        $query = "SELECT username, password FROM kasir WHERE username = '$username' AND password = '$password'";
+        $result = mysqli_query($conn, $query);
 
         if ($result) {
-            // Memeriksa apakah ada hasil yang ditemukan
-            if (mysqli_num_rows($result) > 0) { // Jika ada data yang cocok
-                $user = mysqli_fetch_assoc($result); // Mengambil data user
-                mysqli_close($conn); // Menutup koneksi
-                return ["success" => true, "message" => "Login berhasil", "data" => $user]; // Respon berhasil
+            if (mysqli_num_rows($result) > 0) {
+                $user = mysqli_fetch_assoc($result);
+
+                // Simpan data pengguna ke dalam sesi
+                $_SESSION['user'] = $user['username'];
+
+                mysqli_close($conn);
+                return ["success" => true, "message" => "Login berhasil", "data" => $user];
             } else {
-                mysqli_close($conn); // Menutup koneksi
-                return ["success" => false, "message" => "Username atau password salah"]; // Respon gagal login
+                mysqli_close($conn);
+                return ["success" => false, "message" => "Username atau password salah"];
             }
         } else {
-            mysqli_close($conn); // Menutup koneksi jika query error
-            return ["success" => false, "message" => "Error: " . mysqli_error($conn)]; // Respon jika terjadi kesalahan query
+            mysqli_close($conn);
+            return ["success" => false, "message" => "Error: " . mysqli_error($conn)];
         }
     } else {
-        return ["success" => false, "message" => "Username dan password harus diisi"]; // Respon jika username atau password kosong
+        return ["success" => false, "message" => "Username dan password harus diisi"];
     }
 }
+
+
 
 
 
@@ -755,6 +764,26 @@ function processCheckout($id_kasir, $id_buku, $jumlah) {
         mysqli_close($conn);
     }
 }
+
+
+
+
+//Fungsi untuk Logout//
+function Logout() {
+    session_start(); // Memulai sesi
+
+    // Debugging isi sesi
+    error_log("Session Content: " . print_r($_SESSION, true));
+
+    if (isset($_SESSION['user'])) {
+        session_unset(); // Hapus semua data sesi
+        session_destroy(); // Hancurkan sesi
+        return ["success" => true, "message" => "Logout berhasil"];
+    } else {
+        return ["success" => false, "message" => "Tidak ada sesi yang aktif"];
+    }
+}
+
 
 
 
